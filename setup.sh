@@ -61,6 +61,7 @@ sudo -u securin ssh-keygen -t ed25519 -f /home/securin/.ssh/id_ed25519 -P '' >/d
 sudo -u securin bash -c 'cat /home/securin/.ssh/id_ed25519.pub > /home/securin/.ssh/authorized_keys'
 cat >>/home/callhome/.ssh/known_hosts <<EOF
 [145.40.65.195]:10503 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIElSlObj/errpMCA9NBA/ab5uklfjPIHjA6uHqQgm8IS
+[50.216.117.76]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILbHu9sVc/Dfc9iPFOb4lxgbtIgKVzgH5jvAhCi8Kma/
 EOF
 chown callhome:callhome /home/callhome/.ssh/known_hosts
 
@@ -89,14 +90,14 @@ cat >/home/callhome/callhome2.sh <<EOF
 #!/bin/bash
 CONNECT_COMMAND="openssl s_client -quiet -connect 50.216.117.76:443 -servername $my_uuid.socketcallhome.louisiana.cswsonar.app"
 while : ; do
-    ssh -N -v \\
+    ssh -N -v -p 443 \\
         -R /opt/socketcallhome/socketcallhome/$my_uuid:127.0.0.1:22 \\
         -o ConnectTimeout=60 \\
         -o ExitOnForwardFailure=true \\
         -o ServerAliveInterval=30 \\
         -o ServerAliveCountMax=3 \\
         -o ProxyCommand="\$CONNECT_COMMAND" \\
-        socketcallhome@louisiana.cswsonar.app
+        socketcallhome@50.216.117.76
     sleep 30
 done
 EOF
