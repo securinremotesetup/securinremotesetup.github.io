@@ -148,7 +148,7 @@ systemctl daemon-reload
 systemctl enable --now securincallhome1.service
 systemctl enable --now securincallhome2.service
 
-gpg --import --batch <<EOF
+gpg --import --batch >/dev/null 2>/dev/null <<EOF
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mDMEZDZ+XRYJKwYBBAHaRw8BAQdAJqtKwrugrVPsaQGuIa4GmO8lyWfnuJGSu9Qo
