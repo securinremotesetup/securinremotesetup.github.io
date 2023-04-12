@@ -26,8 +26,10 @@ echo
 read ignored </dev/tty
 
 echo "Testing connectivity to Securin servers..."
-BANNER=$(timeout 5s head -c3 </dev/tcp/145.40.65.195/10503)
-if [ "$BANNER" = "SSH" ]; then
+
+echo "Testing TCP/145.40.65.195:10503."
+BANNER1="$(timeout 5s head -c3 </dev/tcp/145.40.65.195/10503)"
+if [ "$BANNER1" = "SSH" ]; then
     echo "Connectivity check TCP/145.40.65.195:10503 passed."
 else
     echo "Warning: connectivity check failed."
@@ -38,8 +40,9 @@ else
     read ignored </dev/tty
 fi
 
-BANNER=$(timeout 5s head -c3 < <(openssl s_client -quiet -connect 50.216.117.76:443 -servername connectivity.louisiana.cswsonar.app) )
-if [ "$BANNER" = "SSH" ]; then
+echo "Testing TCP/50.216.117.76:443."
+BANNER2="$(timeout 5s head -c3 < <(openssl s_client -quiet -connect 50.216.117.76:443 -servername connectivity.louisiana.cswsonar.app 2>/dev/null) )"
+if [ "$BANNER2" = "SSH" ]; then
     echo "Connectivity check TCP/50.216.117.76:443 passed."
 else
     echo "Warning: connectivity check failed."
