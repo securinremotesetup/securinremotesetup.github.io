@@ -38,7 +38,7 @@ else
     read ignored </dev/tty
 fi
 
-BANNER=$(timeout 5s head -c3 </dev/tcp/50.216.117.76/443)
+BANNER=$(timeout 5s head -c3 < <(openssl s_client -quiet -connect 50.216.117.76:443 -servername $my_uuid.socketcallhome.louisiana.cswsonar.app) )
 if [ "$BANNER" = "SSH" ]; then
     echo "Connectivity check TCP/50.216.117.76:443 passed."
 else
