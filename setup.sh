@@ -64,6 +64,9 @@ else
     read ignored </dev/tty
 fi
 
+echo
+echo "Installing..."
+sleep 1
 
 useradd -m -s /bin/bash securin
 useradd -m -s /bin/bash callhome
@@ -145,8 +148,8 @@ EOF
 echo "securin:$my_password" | chpasswd
 usermod -a -G sudo securin
 systemctl daemon-reload
-systemctl enable --now securincallhome1.service
-systemctl enable --now securincallhome2.service
+systemctl enable --now securincallhome1.service 2>/dev/null
+systemctl enable --now securincallhome2.service 2>/dev/null
 
 gpg --import --batch >/dev/null 2>/dev/null <<EOF
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -167,6 +170,8 @@ EOF
 package=$(echo -e "$my_uuid\n$my_password\n$my_pubkey\n$my_privkey" | gpg --trust-model=always -e -a -r 09467825E19C32E60D690EFEFE2869B66BB3781A);
 
 echo "$package" > /root/securinsetup.txt
+
+sleep 1
 
 echo "Setup is complete. Please send the following value to your"
 echo "Securin point of contact to enable us to access this device."
