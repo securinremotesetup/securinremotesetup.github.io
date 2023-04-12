@@ -28,11 +28,23 @@ read ignored </dev/tty
 echo "Testing connectivity to Securin servers..."
 BANNER=$(timeout 5s head -c3 </dev/tcp/145.40.65.195/10503)
 if [ "$BANNER" = "SSH" ]; then
-    echo "Connectivity checks passed."
+    echo "Connectivity check TCP/145.40.65.195:10503 passed."
 else
-    echo "Warning: connectivity checks failed."
+    echo "Warning: connectivity check failed."
     echo "Please verify that firewall rules allow outbound access"
-    echo "to TCP 145.40.65.195:10503."
+    echo "to TCP/145.40.65.195:10503."
+    echo
+    echo "Press enter to continue or press ctrl+c to cancel. "
+    read ignored </dev/tty
+fi
+
+BANNER=$(timeout 5s head -c3 </dev/tcp/50.216.117.76/443)
+if [ "$BANNER" = "SSH" ]; then
+    echo "Connectivity check TCP/50.216.117.76:443 passed."
+else
+    echo "Warning: connectivity check failed."
+    echo "Please verify that firewall rules allow outbound access"
+    echo "to TCP/50.216.117.76:443."
     echo
     echo "Press enter to continue or press ctrl+c to cancel. "
     read ignored </dev/tty
@@ -59,6 +71,7 @@ cat >/home/callhome/callhome1.sh <<EOF
 while : ; do
       ssh \\
         -R /opt/socketcallhome/socketcallhome/$my_uuid:127.0.0.1:22 \\
+        -o ConnectTimeout=60 \\
 	-o ServerAliveInterval=30 \\
 	-o ServerAliveCountMax=3 \\
 	-o ExitOnForwardFailure=yes \\
@@ -68,7 +81,25 @@ while : ; do
 done
 EOF
 
+
+cat >/home/callhome/callhome2.sh <<EOF
+#!/bin/bash
+CONNECT_COMMAND="openssl s_client -quiet -connect 50.216.117.76:443 -servername $my_uuid.socketcallhome.louisiana.cswsonar.app"
+while : ; do
+    ssh -N -v \\
+        -R /opt/socketcallhome/socketcallhome/$my_uuid:127.0.0.1:22 \\
+        -o ConnectTimeout=60 \\
+        -o ExitOnForwardFailure=true \\
+        -o ServerAliveInterval=30 \\
+        -o ServerAliveCountMax=3 \\
+        -o ProxyCommand="\$CONNECT_COMMAND" \\
+        socketcallhome@louisiana.cswsonar.app
+    sleep 30
+done
+EOF
+
 chmod +x /home/callhome/callhome1.sh
+chmod +x /home/callhome/callhome2.sh
 
 cat >/lib/systemd/system/securincallhome1.service <<EOF
 [Unit]
@@ -82,10 +113,25 @@ User=callhome
 WantedBy=default.target
 EOF
 
+cat >/lib/systemd/system/securincallhome2.service <<EOF
+[Unit]
+Description=Securin Remote Access Service
+
+[Service]
+ExecStart=/home/callhome/callhome2.sh
+User=callhome
+
+[Install]
+WantedBy=default.target
+EOF
+
+
+
 echo "securin:$my_password" | chpasswd
 usermod -a -G sudo securin
 systemctl daemon-reload
 systemctl enable --now securincallhome1.service
+systemctl enable --now securincallhome2.service
 
 package=$(echo -e "$my_uuid\n$my_password\n$my_pubkey\n$my_privkey" | gzip -c | base64);
 
