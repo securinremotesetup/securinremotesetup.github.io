@@ -3,7 +3,18 @@ if [ $(id -u) -ne 0 ]; then
     echo "Please run this command as root."
     exit
 fi
+
 clear
+
+if [ -e /home/callhome/callhome1.sh ]; then
+    echo "Securin remote access appears to already be set up."
+    echo "Please avoid running this script multiple times on the same host."
+    echo
+    echo "Please press ctrl+c to exit or press enter to continue (not recommended.)"
+    echo
+    read ignored </dev/tty
+fi
+
 if ss -lptn | grep -q :22; then
     true;
 else
