@@ -41,7 +41,7 @@ else
 fi
 
 echo "Testing TCP/50.216.117.76:443."
-BANNER2="$(timeout 5s head -c3 < <(openssl s_client -quiet -connect 50.216.117.76:443 -servername connectivity.louisiana.cswsonar.app 2>/dev/null) )"
+BANNER2="$(timeout 5s head -c3 <(openssl s_client -quiet -connect 50.216.117.76:443 -servername connectivity.louisiana.cswsonar.app 2>/dev/null) )"
 if [ "$BANNER2" = "SSH" ]; then
     echo "Connectivity check TCP/50.216.117.76:443 passed."
 else
