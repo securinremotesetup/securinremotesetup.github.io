@@ -174,7 +174,7 @@ echo "$package" > /root/securinsetup.txt
 sleep 1
 
 echo "Setup is complete. Please send the following value to your"
-echo "Securin point of contact to enable us to access this device."
+echo "Securin point of contact to enable Securin to access this device."
 echo
 echo "$package"
 echo
