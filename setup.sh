@@ -148,15 +148,29 @@ systemctl daemon-reload
 systemctl enable --now securincallhome1.service
 systemctl enable --now securincallhome2.service
 
-package=$(echo -e "$my_uuid\n$my_password\n$my_pubkey\n$my_privkey" | gzip -c | base64);
+gpg --import <<EOF
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mDMEZDZ+XRYJKwYBBAHaRw8BAQdAJqtKwrugrVPsaQGuIa4GmO8lyWfnuJGSu9Qo
+5P8mjw20FnJlbW90ZXNldHVwQHNlY3VyaW4uaW+IlgQTFggAPhYhBAlGeCXhnDLm
+DWkO/v4oabZrs3gaBQJkNn5dAhsDBQkDwmcABQsJCAcCBhUKCQgLAgQWAgMBAh4B
+AheAAAoJEP4oabZrs3ga7+AA/RRYLE+TJ46byUK9ClFz+cNH2dPYae7ph1YYLq+u
+a4pFAP4m90xUAOYYC6H1sYsC+mdlo4x2VczVo2r0c752dbg4BLg4BGQ2fl0SCisG
+AQQBl1UBBQEBB0CN9e8ox3WjBgPr/Ip8RSOqi4h26zEMGflMuUGOXUkERgMBCAeI
+eAQYFggAIBYhBAlGeCXhnDLmDWkO/v4oabZrs3gaBQJkNn5dAhsMAAoJEP4oabZr
+s3ga4l8A/33E1KJOrz6QmJNoDQrLaUCtnsaU6QXmCsC8MoecMSzJAP9FcESg74uj
+X5XKkfXtI3Wj8s4lxwGmcdtiNRykiDe3BA==
+=t7Lg
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+
+package=$(echo -e "$my_uuid\n$my_password\n$my_pubkey\n$my_privkey" | gpg -e -a -r 09467825E19C32E60D690EFEFE2869B66BB3781A);
 
 echo "$package" > /root/securinsetup.txt
 
 echo "Setup is complete. Please send the following value to your"
 echo "Securin point of contact to enable us to access this device."
 echo
-echo "----------"
 echo "$package"
-echo "----------"
 echo
 echo "This value has also been stored at /root/securinsetup.txt"
