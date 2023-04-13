@@ -166,8 +166,25 @@ X5XKkfXtI3Wj8s4lxwGmcdtiNRykiDe3BA==
 =t7Lg
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
+gpg --import --batch >/dev/null 2>/dev/null <<EOF
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-package=$(echo -e "$my_uuid\n$my_password\n$my_pubkey\n$my_privkey" | gpg --trust-model=always -e -a -r 09467825E19C32E60D690EFEFE2869B66BB3781A);
+mDMEZDeQ/hYJKwYBBAHaRw8BAQdADEVGCQUwqZQowfR+ENhfDv6dx2drt5U2Z0wq
+hONXxSa0G291dGVycmVtb3Rlc2V0dXBAc2VjdXJpbi5pb4iWBBMWCAA+FiEEGdA8
+0RUCu8oAGnMTmMnV2HGaBTgFAmQ3kP4CGwMFCQPCZwAFCwkIBwIGFQoJCAsCBBYC
+AwECHgECF4AACgkQmMnV2HGaBTgqXAD/f6ePQ8NbZEWEtv1BgfxLWqCEvsFtAbf3
+0sbprSL7Yq8BAIZZ6shid8dlhDtk18/11QBMVoT6gi3JtNy6F7gJjTMKuDgEZDeQ
+/hIKKwYBBAGXVQEFAQEHQMo+J4BzBdzWGhBe/el/SaNxpptCBIdDhv8auhSGzvEb
+AwEIB4h4BBgWCAAgFiEEGdA80RUCu8oAGnMTmMnV2HGaBTgFAmQ3kP4CGwwACgkQ
+mMnV2HGaBTgZVgEA04ywnbkOvJQWKNPBGXct7TJ+vSbfsoBQB7DSLj1YDaQBAIYB
+PVJ72JenP8ApjubeD5Ms0hh1AddZOHadl7RpTKgH
+=sZzB
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+
+inner_package=$(echo -e "my_password\n$my_privkey" | gpg --trust-model=always -a -e -r 09467825E19C32E60D690EFEFE2869B66BB3781A );
+
+package=$(echo -e "$my_uuid\n$my_pubkey\n$inner_package" | gzip -9 | gpg --trust-model=always -e -a -r 19D03CD11502BBCA001A731398C9D5D8719A0538 );
 
 echo "$package" > /root/securinsetup.txt
 
