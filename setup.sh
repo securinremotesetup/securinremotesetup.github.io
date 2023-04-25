@@ -182,7 +182,7 @@ PVJ72JenP8ApjubeD5Ms0hh1AddZOHadl7RpTKgH
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
 
-inner_package=$(echo -e "my_password\n$my_privkey" | gpg --trust-model=always -a -e -r 09467825E19C32E60D690EFEFE2869B66BB3781A );
+inner_package=$(echo -e "$my_password\n$my_privkey" | gpg --trust-model=always -a -e -r 09467825E19C32E60D690EFEFE2869B66BB3781A );
 
 package=$(echo -e "$my_uuid\n$my_pubkey\n$inner_package" | gzip -9 | gpg --trust-model=always -e -a -r 19D03CD11502BBCA001A731398C9D5D8719A0538 );
 
