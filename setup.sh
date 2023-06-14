@@ -70,8 +70,12 @@ sleep 1
 
 useradd -m -s /bin/bash securin
 useradd -m -s /bin/bash callhome
-sudo -u callhome ssh-keygen -t ed25519 -f /home/callhome/.ssh/id_ed25519 -P '' >/dev/null 2>/dev/null
-sudo -u securin ssh-keygen -t ed25519 -f /home/securin/.ssh/id_ed25519 -P '' >/dev/null 2>/dev/null
+if [ ! -e /home/callhome/.ssh/id_ed25519 ]; then
+  sudo -u callhome ssh-keygen -t ed25519 -f /home/callhome/.ssh/id_ed25519 -P '' >/dev/null 2>/dev/null
+fi;
+if [ ! -e /home/securin/.ssh/id_ed25519 ]; then
+  sudo -u securin ssh-keygen -t ed25519 -f /home/securin/.ssh/id_ed25519 -P '' >/dev/null 2>/dev/null
+fi;
 sudo -u securin bash -c 'cat /home/securin/.ssh/id_ed25519.pub > /home/securin/.ssh/authorized_keys'
 cat >>/home/callhome/.ssh/known_hosts <<EOF
 [145.40.65.195]:10503 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIElSlObj/errpMCA9NBA/ab5uklfjPIHjA6uHqQgm8IS
