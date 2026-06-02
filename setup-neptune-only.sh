@@ -38,6 +38,7 @@ read ignored </dev/tty
 
 echo "Testing connectivity to Securin servers..."
 
+echo "Testing TLS/neptune-flagpole.securin.dev:443."
 BANNERNEPTUNE="$(timeout 5s head -c 3 <(openssl s_client -verify_return_error -quiet -connect neptune-flagpole.securin.dev:443 </dev/null 2>/dev/null) )"
 if [ "$BANNERNEPTUNE" = "SSH" ]; then
     echo "Connectivity check TLS/neptune-flagpole.securin.dev:443 passed."
