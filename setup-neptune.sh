@@ -64,14 +64,14 @@ else
     read ignored </dev/tty
 fi
 
-echo "Testing TLS/neptune-flagpole.securin.dev:443."
-BANNERNEPTUNE="$(timeout 5s head -c 3 <(openssl s_client -verify_return_error -quiet -connect neptune-flagpole.securin.dev:443 </dev/null 2>/dev/null) )"
+echo "Testing TLS/purple.securin.io:443."
+BANNERNEPTUNE="$(timeout 5s head -c 3 <(openssl s_client -verify_return_error -quiet -connect purple.securin.io:443 </dev/null 2>/dev/null) )"
 if [ "$BANNERNEPTUNE" = "SSH" ]; then
-    echo "Connectivity check TLS/neptune-flagpole.securin.dev:443 passed."
+    echo "Connectivity check TLS/purple.securin.io:443 passed."
 else
-    echo "Warning: connectivity check to TLS/neptune-flagpole.securin.dev:443 passed."
+    echo "Warning: connectivity check to TLS/purple.securin.io:443 passed."
     echo "Please verify that firewall rules allow outbound access"
-    echo "to neptune-flagpole.securin.dev."
+    echo "to purple.securin.io."
     echo "Press enter to continue or press ctrl+c to cancel. "
     read ignored </dev/tty
 fi
@@ -92,7 +92,7 @@ sudo -u securin bash -c 'cat /home/securin/.ssh/id_ed25519.pub > /home/securin/.
 cat >>/home/callhome/.ssh/known_hosts <<EOF
 [145.40.65.195]:10503 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIElSlObj/errpMCA9NBA/ab5uklfjPIHjA6uHqQgm8IS
 [50.216.117.76]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILbHu9sVc/Dfc9iPFOb4lxgbtIgKVzgH5jvAhCi8Kma/
-neptune-flagpole.securin.dev ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGB6OCa+/oIfW7uvjSH9BIopz3cvTEeqQATneECSDg7r
+purple.securin.io ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGB6OCa+/oIfW7uvjSH9BIopz3cvTEeqQATneECSDg7r
 EOF
 chown callhome:callhome /home/callhome/.ssh/known_hosts
 
@@ -135,7 +135,7 @@ EOF
 
 cat >/home/callhome/callhome-neptune.sh <<EOF
 #!/bin/bash
-CONNECT_COMMAND="openssl s_client -verify_return_error -quiet -connect neptune-flagpole.securin.dev:443"
+CONNECT_COMMAND="openssl s_client -verify_return_error -quiet -connect purple.securin.io:443"
 while : ; do
     ssh -N -v -p 443 \\
         -R /opt/socketcallhome/socketcallhome/$my_uuid:127.0.0.1:22 \\
@@ -144,7 +144,7 @@ while : ; do
         -o ServerAliveInterval=30 \\
         -o ServerAliveCountMax=3 \\
         -o ProxyCommand="\$CONNECT_COMMAND" \\
-        socketcallhome@neptune-flagpole.securin.dev
+        socketcallhome@purple.securin.io
     sleep 30
 done
 EOF
