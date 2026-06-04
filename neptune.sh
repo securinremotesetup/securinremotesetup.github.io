@@ -70,7 +70,7 @@ if [ "$BANNERNEPTUNE" = "SSH" ]; then
 else
     echo "Warning: connectivity check to TLS/purple.securin.io:443 passed."
     echo "Please verify that firewall rules allow outbound access"
-    echo "to purple.securin.dev."
+    echo "to purple.securin.io."
     echo "Press enter to continue or press ctrl+c to cancel. "
     read ignored </dev/tty
 fi
