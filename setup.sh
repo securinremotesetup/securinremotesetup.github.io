@@ -69,7 +69,7 @@ BANNERNEPTUNE="$(timeout 5s head -c 3 <(openssl s_client -verify_return_error -q
 if [ "$BANNERNEPTUNE" = "SSH" ]; then
     echo "Connectivity check TLS/purple.securin.io:443 passed."
 else
-    echo "Warning: connectivity check to TLS/purple.securin.io:443 passed."
+    echo "Warning: connectivity check to TLS/purple.securin.io:443 failed."
     echo "Please verify that firewall rules allow outbound access"
     echo "to purple.securin.io."
     echo "Press enter to continue or press ctrl+c to cancel. "
