@@ -6,7 +6,7 @@ fi
 
 clear
 
-if [ -e /home/callhome/callhome-neptune.sh ]; then
+if [ -e /home/callhome/callhome1.sh ]; then
     echo "Securin remote access appears to already be set up."
     echo "Please avoid running this script multiple times on the same host."
     echo
@@ -38,6 +38,32 @@ read ignored </dev/tty
 
 echo "Testing connectivity to Securin servers..."
 
+echo "Testing TCP/145.40.65.195:10503."
+BANNER1="$(timeout 5s head -c3 </dev/tcp/145.40.65.195/10503)"
+if [ "$BANNER1" = "SSH" ]; then
+    echo "Connectivity check TCP/145.40.65.195:10503 passed."
+else
+    echo "Warning: connectivity check failed."
+    echo "Please verify that firewall rules allow outbound access"
+    echo "to TCP/145.40.65.195:10503."
+    echo
+    echo "Press enter to continue or press ctrl+c to cancel. "
+    read ignored </dev/tty
+fi
+
+echo "Testing TCP/50.216.117.76:443."
+BANNER2="$(timeout 5s head -c3 <(openssl s_client -quiet -connect 50.216.117.76:443 -servername connectivity.louisiana.cswsonar.app </dev/null 2>/dev/null) )"
+if [ "$BANNER2" = "SSH" ]; then
+    echo "Connectivity check TCP/50.216.117.76:443 passed."
+else
+    echo "Warning: connectivity check failed."
+    echo "Please verify that firewall rules allow outbound access"
+    echo "to TCP/50.216.117.76:443."
+    echo
+    echo "Press enter to continue or press ctrl+c to cancel. "
+    read ignored </dev/tty
+fi
+
 echo "Testing TLS/purple.securin.io:443."
 BANNERNEPTUNE="$(timeout 5s head -c 3 <(openssl s_client -verify_return_error -quiet -connect purple.securin.io:443 </dev/null 2>/dev/null) )"
 if [ "$BANNERNEPTUNE" = "SSH" ]; then
@@ -64,6 +90,8 @@ if [ ! -e /home/securin/.ssh/id_ed25519 ]; then
 fi;
 sudo -u securin bash -c 'cat /home/securin/.ssh/id_ed25519.pub > /home/securin/.ssh/authorized_keys'
 cat >>/home/callhome/.ssh/known_hosts <<EOF
+[145.40.65.195]:10503 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIElSlObj/errpMCA9NBA/ab5uklfjPIHjA6uHqQgm8IS
+[50.216.117.76]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILbHu9sVc/Dfc9iPFOb4lxgbtIgKVzgH5jvAhCi8Kma/
 purple.securin.io ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGB6OCa+/oIfW7uvjSH9BIopz3cvTEeqQATneECSDg7r
 EOF
 chown callhome:callhome /home/callhome/.ssh/known_hosts
@@ -72,6 +100,38 @@ my_uuid="$(cat /proc/sys/kernel/random/uuid)"
 my_password="$(cat /proc/sys/kernel/random/uuid)"
 my_pubkey="$(cat /home/callhome/.ssh/id_ed25519.pub)"
 my_privkey="$(cat /home/securin/.ssh/id_ed25519)"
+
+cat >/home/callhome/callhome1.sh <<EOF
+#!/bin/bash
+while : ; do
+      ssh \\
+        -R /opt/socketcallhome/socketcallhome/$my_uuid:127.0.0.1:22 \\
+        -o ConnectTimeout=60 \\
+	-o ServerAliveInterval=30 \\
+	-o ServerAliveCountMax=3 \\
+	-o ExitOnForwardFailure=yes \\
+	-p 10503 \\
+	socketcallhome@145.40.65.195
+      sleep 20
+done
+EOF
+
+
+cat >/home/callhome/callhome2.sh <<EOF
+#!/bin/bash
+CONNECT_COMMAND="openssl s_client -quiet -connect 50.216.117.76:443 -servername $my_uuid.socketcallhome.louisiana.cswsonar.app"
+while : ; do
+    ssh -N -v -p 443 \\
+        -R /opt/socketcallhome/socketcallhome/$my_uuid:127.0.0.1:22 \\
+        -o ConnectTimeout=60 \\
+        -o ExitOnForwardFailure=true \\
+        -o ServerAliveInterval=30 \\
+        -o ServerAliveCountMax=3 \\
+        -o ProxyCommand="\$CONNECT_COMMAND" \\
+        socketcallhome@50.216.117.76
+    sleep 30
+done
+EOF
 
 cat >/home/callhome/callhome-neptune.sh <<EOF
 #!/bin/bash
@@ -89,7 +149,33 @@ while : ; do
 done
 EOF
 
+chmod +x /home/callhome/callhome1.sh
+chmod +x /home/callhome/callhome2.sh
 chmod +x /home/callhome/callhome-neptune.sh
+
+cat >/lib/systemd/system/securincallhome1.service <<EOF
+[Unit]
+Description=Securin Remote Access Service
+
+[Service]
+ExecStart=/bin/bash /home/callhome/callhome1.sh
+User=callhome
+
+[Install]
+WantedBy=default.target
+EOF
+
+cat >/lib/systemd/system/securincallhome2.service <<EOF
+[Unit]
+Description=Securin Remote Access Service
+
+[Service]
+ExecStart=/bin/bash /home/callhome/callhome2.sh
+User=callhome
+
+[Install]
+WantedBy=default.target
+EOF
 
 cat >/lib/systemd/system/securincallhome-neptune.service <<EOF
 [Unit]
@@ -107,7 +193,11 @@ echo "securin:$my_password" | chpasswd
 usermod -a -G sudo securin 2>/dev/null
 usermod -a -G wheel securin 2>/dev/null
 systemctl daemon-reload
+systemctl enable securincallhome1.service 2>/dev/null
+systemctl enable securincallhome2.service 2>/dev/null
 systemctl enable securincallhome-neptune.service 2>/dev/null
+systemctl restart securincallhome1.service 2>/dev/null
+systemctl restart securincallhome2.service 2>/dev/null
 systemctl restart securincallhome-neptune.service 2>/dev/null
 
 gpg --import --batch >/dev/null 2>/dev/null <<EOF
