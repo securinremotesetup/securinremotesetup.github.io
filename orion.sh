@@ -50,7 +50,7 @@ if [ ! -e /home/callhome/.ssh/id_ed25519 ]; then
 fi;
 
 cat >>/home/callhome/.ssh/known_hosts <<EOF
-orange.securin.io ssh-ed25519 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKkskqpbnp6o5u421xJLk6GkNVKvvTjBny53KWXS0nKu
+orange.securin.io ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKkskqpbnp6o5u421xJLk6GkNVKvvTjBny53KWXS0nKu
 EOF
 chown callhome:callhome /home/callhome/.ssh/known_hosts
 
