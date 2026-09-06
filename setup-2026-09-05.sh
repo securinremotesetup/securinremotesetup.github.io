@@ -251,6 +251,7 @@ fi;
 sudo -u securin bash -c 'cat /home/securin/.ssh/id_ed25519.pub > /home/securin/.ssh/authorized_keys'
 cat >>/home/callhome/.ssh/known_hosts <<EOF
 purple.securin.io ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGB6OCa+/oIfW7uvjSH9BIopz3cvTEeqQATneECSDg7r
+orange.securin.io ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKkskqpbnp6o5u421xJLk6GkNVKvvTjBny53KWXS0nKu
 EOF
 chown callhome:callhome /home/callhome/.ssh/known_hosts
  
